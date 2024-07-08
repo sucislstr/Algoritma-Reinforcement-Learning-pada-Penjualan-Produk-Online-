@@ -1,0 +1,201 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": []
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "code",
+      "execution_count": 14,
+      "metadata": {
+        "id": "EMmxeAG6LZEE"
+      },
+      "outputs": [],
+      "source": [
+        "import numpy as np\n",
+        "import random"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Parameters\n",
+        "num_users = 5\n",
+        "num_products = 10\n",
+        "alpha = 0.1  # Learning rate\n",
+        "gamma = 0.9  # Discount factor\n",
+        "epsilon = 0.1  # Exploration rate"
+      ],
+      "metadata": {
+        "id": "jKTQG_O7Lcqb"
+      },
+      "execution_count": 15,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Initialize Q-table\n",
+        "Q = np.zeros((num_users, num_products))"
+      ],
+      "metadata": {
+        "id": "gn1O3wQfLj88"
+      },
+      "execution_count": 16,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Reward function (simulated for this example)\n",
+        "def get_reward(user, product):\n",
+        "    # Simulate a reward: 1 for a click (10% chance), 0 otherwise\n",
+        "    return 1 if random.random() < 0.1 else 0"
+      ],
+      "metadata": {
+        "id": "FCjAv67iLoxc"
+      },
+      "execution_count": 17,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Epsilon-greedy policy for action selection\n",
+        "def choose_action(user):\n",
+        "    if random.random() < epsilon:\n",
+        "        return random.randint(0, num_products - 1)  # Explore: random product\n",
+        "    else:\n",
+        "        return np.argmax(Q[user])  # Exploit: best known product"
+      ],
+      "metadata": {
+        "id": "h6KYWRx8LsYW"
+      },
+      "execution_count": 18,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Training loop\n",
+        "num_episodes = 1000\n",
+        "for episode in range(num_episodes):\n",
+        "    for user in range(num_users):\n",
+        "        product = choose_action(user)\n",
+        "        reward = get_reward(user, product)\n",
+        "        next_product = np.argmax(Q[user])  # Next action (best known)\n",
+        "\n",
+        "        # Q-learning update (Corrected indentation)\n",
+        "        Q[user, product] = Q[user, product] + alpha * (\n",
+        "            reward + gamma * Q[user, next_product] - Q[user, product]\n",
+        "        ) # Removed extra indent"
+      ],
+      "metadata": {
+        "id": "GrvSTj5ELwZG"
+      },
+      "execution_count": 19,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Q-learning update\n",
+        "Q[user, product] = Q[user, product] + alpha * (\n",
+        "    reward + gamma * Q[user, next_product] - Q[user, product]\n",
+        ") # Removed extra indent"
+      ],
+      "metadata": {
+        "id": "LTgJsKVGL1Zd"
+      },
+      "execution_count": 20,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Print the learned Q-table\n",
+        "print(\"Learned Q-table:\")\n",
+        "print(Q)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "E87jQ1MFL5NH",
+        "outputId": "55fefe31-3d9a-4948-9a05-5e920cb6f7ae"
+      },
+      "execution_count": 21,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Learned Q-table:\n",
+            "[[0.96432232 0.521672   0.48452036 0.65801009 0.58154548 0.7494384\n",
+            "  0.60985821 0.39676457 0.82191827 0.73858998]\n",
+            " [0.48408596 0.66345404 0.69638177 0.65450527 0.730412   1.05166081\n",
+            "  0.79525596 0.74792247 0.8703433  0.35715439]\n",
+            " [0.97716724 0.66465268 0.46826838 0.30377105 0.53263077 0.71772763\n",
+            "  0.47276941 0.42849039 0.6824376  0.59277682]\n",
+            " [1.01623617 0.63178288 0.72189861 0.54834641 0.63436933 0.58867167\n",
+            "  0.42605388 0.63093174 0.59709459 0.57245062]\n",
+            " [1.25533093 0.47325391 0.68450356 0.4193446  0.82948267 0.75212532\n",
+            "  0.87421862 0.64472154 0.43741089 0.59695858]]\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Recommendation function\n",
+        "def recommend(user):\n",
+        "    return np.argmax(Q[user])"
+      ],
+      "metadata": {
+        "id": "3SpKiTHFL_AX"
+      },
+      "execution_count": 12,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Example recommendations\n",
+        "for user in range(num_users):\n",
+        "    print(f\"Recommended product for user {user}: {recommend(user)}\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "RdOMlBIfMD83",
+        "outputId": "8b6c161e-3f53-4d70-87ec-ea9a3b93393e"
+      },
+      "execution_count": 13,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Recommended product for user 0: 0\n",
+            "Recommended product for user 1: 2\n",
+            "Recommended product for user 2: 0\n",
+            "Recommended product for user 3: 0\n",
+            "Recommended product for user 4: 3\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
